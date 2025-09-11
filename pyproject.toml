@@ -1,18 +1,15 @@
-[project]
+[tool.poetry]
 name = "irrigation-app-nasa-data"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "Marina",email = "111240861+marinamiw@users.noreply.github.com"}
-]
+authors = ["Marina <111240861+marinamiw@users.noreply.github.com>"]
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = [
-    "fastapi (>=0.116.1,<0.117.0)",
-    "uvicorn (>=0.35.0,<0.36.0)",
-    "requests (>=2.32.4,<3.0.0)"
-]
 
+[tool.poetry.dependencies]
+python = ">=3.12"
+fastapi = ">=0.116.1,<0.117.0"
+uvicorn = ">=0.35.0,<0.36.0"
+requests = ">=2.32.4,<3.0.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
