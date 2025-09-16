@@ -3,7 +3,23 @@ from fastapi.responses import JSONResponse
 import requests
 from datetime import datetime, timedelta
 
+
+
+
 app = FastAPI()
+
+
+from prisma import Prisma
+
+db = Prisma()
+
+@app.on_event("startup")
+async def startup():
+    await db.connect()
+
+@app.on_event("shutdown")
+async def shutdown():
+    await db.disconnect()
 
 def filtrar_valores_validos(valores, fill_value=-999):
     return [v for v in valores if v != fill_value]

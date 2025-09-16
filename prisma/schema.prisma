@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// 1. Define o gerador de cliente do Prisma (para usar no seu código)
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 2. Define a fonte de dados (aqui usando PostgreSQL, mas pode ser MySQL, SQLite, etc.)
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // A URL do seu banco de dados fica no arquivo .env
+}
+
+// --- ENUMS ---
+// Enums para valores predefinidos, conforme a descrição do projeto.
+// Isso evita a necessidade de tabelas separadas para "Solo" e "Fase".
+
+enum SoilType {
+  MEDIO
+  ARGILOSO
+  ARENOSO
+}
+
+enum HarvestPhase {
+  INICIAL
+  DESENVOLVIMENTO
+  MATURACAO
+}
+
+enum Gender {
+  MASCULINO
+  FEMININO
+  OUTRO
+  NAO_INFORMAR
+}
+
+
+// --- MODELS ---
+// Modelos que representam as tabelas no seu banco de dados.
+
+// Modelo para o Fazendeiro/Usuário do sistema
+model User {
+  id            String    @id @default(cuid()) // Chave primária única (CUID é ótimo para web)
+  email         String    @unique // O email deve ser único para cada usuário
+  name          String    // Nome do fazendeiro
+  farmName      String    // Nome da fazenda
+  gender        Gender    // Gênero do usuário, usando o Enum definido acima
+  
+  // IMPORTANTE: A senha deve ser armazenada como um hash, nunca como texto plano.
+  // O processo de hashing é feito na sua aplicação antes de salvar no banco.
+  passwordHash  String
+
+  // Campos definidos pelo usuário após o registro
+  soilType      SoilType?     // Tipo de solo da plantação (opcional até que ele configure)
+  harvestPhase  HarvestPhase? // Fase da colheita (opcional até que ele configure)
+
+  // Relacionamento: Um usuário pode ter zero ou vários registros de irrigação.
+  irrigations   Irrigation[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("users") // Mapeia este modelo para a tabela "users" no banco de dados
+}
+
+// Modelo para o registro de Irrigação
+model Irrigation {
+  id              String    @id @default(cuid())
+  irrigatedAt     DateTime  @default(now()) // Data e hora em que a irrigação foi registrada
+  
+  // Relacionamento: Este registro de irrigação pertence a um único usuário.
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+
+  @@map("irrigations") // Mapeia este modelo para a tabela "irrigations" no banco de dados
+}
