@@ -1,5 +1,3 @@
-# auth/auth_schemas.py
-
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from enum import Enum
@@ -48,7 +46,7 @@ class TokenResponse(BaseModel):
 
 class UserResponse(BaseModel):
     """Schema para dados públicos do usuário"""
-    id: str
+    id: int  # Agora é inteiro
     name: str
     email: str
     farmName: str
