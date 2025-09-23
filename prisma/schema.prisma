@@ -3,7 +3,7 @@
 
 // 1. Define o gerador de cliente do Prisma (para usar no seu código)
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client-py"
 }
 
 // 2. Define a fonte de dados (aqui usando PostgreSQL, mas pode ser MySQL, SQLite, etc.)
@@ -41,8 +41,8 @@ enum Gender {
 
 // Modelo para o Fazendeiro/Usuário do sistema
 model User {
-  id            String    @id @default(cuid()) // Chave primária única (CUID é ótimo para web)
-  email         String    @unique // O email deve ser único para cada usuário
+  id            Int      @id @default(autoincrement()) // Agora é inteiro autoincrementável
+  email         String   @unique // O email deve ser único para cada usuário
   name          String    // Nome do fazendeiro
   farmName      String    // Nome da fazenda
   gender        Gender    // Gênero do usuário, usando o Enum definido acima
@@ -50,6 +50,9 @@ model User {
   // IMPORTANTE: A senha deve ser armazenada como um hash, nunca como texto plano.
   // O processo de hashing é feito na sua aplicação antes de salvar no banco.
   passwordHash  String
+
+  // Chave da sessão do usuário, opcional para uso futuro em autenticação ou rastreamento de sessão
+  sessionKey    String?
 
   // Campos definidos pelo usuário após o registro
   soilType      SoilType?     // Tipo de solo da plantação (opcional até que ele configure)
@@ -71,7 +74,7 @@ model Irrigation {
   
   // Relacionamento: Este registro de irrigação pertence a um único usuário.
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId          String
+  userId          Int       // Corrigido para Int
 
   @@map("irrigations") // Mapeia este modelo para a tabela "irrigations" no banco de dados
 }
