@@ -2,7 +2,6 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 from enum import Enum
 
-# Enums que espelham o schema.prisma para validação
 class SoilType(str, Enum):
     MEDIO = "MEDIO"
     ARGILOSO = "ARGILOSO"
@@ -19,9 +18,6 @@ class Gender(str, Enum):
     OUTRO = "OUTRO"
     NAO_INFORMAR = "NAO_INFORMAR"
 
-
-# --- Schemas para Requisições ---
-
 class LoginRequest(BaseModel):
     """Schema para requisição de login"""
     email: EmailStr
@@ -34,9 +30,8 @@ class RegisterRequest(BaseModel):
     gender: Gender
     email: EmailStr
     password: str
-
-
-# --- Schemas para Respostas ---
+    soilType: SoilType
+    harvestPhase: HarvestPhase
 
 class TokenResponse(BaseModel):
     """Schema para resposta de token JWT"""
@@ -46,7 +41,7 @@ class TokenResponse(BaseModel):
 
 class UserResponse(BaseModel):
     """Schema para dados públicos do usuário"""
-    id: int  # Agora é inteiro
+    id: int
     name: str
     email: str
     farmName: str
@@ -55,9 +50,9 @@ class UserResponse(BaseModel):
     harvestPhase: Optional[HarvestPhase] = None
     
     class Config:
-        from_attributes = True # Permite mapear diretamente de um objeto Prisma
+        from_attributes = True
 
 class AuthResponse(BaseModel):
-    """Schema completo para resposta de autenticação (usuário + token)"""
+    """Schema completo para resposta de autenticação"""
     user: UserResponse
     token: TokenResponse

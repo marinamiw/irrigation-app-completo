@@ -1,43 +1,200 @@
-# Smart Irrigation NASA 🌱
+# Smart Irrigation NASA
 
-Aplicativo para auxiliar produtores rurais na gestão da irrigação, utilizando dados climáticos fornecidos pela NASA.
+Sistema de recomendação de irrigação para produtores rurais baseado em dados climáticos da NASA POWER API.
 
----
+## Descrição
 
-## 📋 Descrição do Projeto
+Esta API REST fornece funcionalidades para:
+- Cadastro e autenticação de fazendeiros
+- Gestão de perfil e configurações de cultivo
+- Registro de irrigações
+- Recomendações de irrigação baseadas em dados climáticos em tempo real
+- Histórico de irrigações
 
-Este projeto tem como objetivo o desenvolvimento de um aplicativo que utiliza dados climáticos de satélite (NASA) para ajudar o produtor rural a tomar decisões mais precisas sobre quando e quanto irrigar suas plantações.
+## Requisitos
 
-A proposta é integrar informações científicas com uma interface simples, acessível e funcional.
+- Python 3.8 ou superior
+- PostgreSQL 12 ou superior
+- pip (gerenciador de pacotes Python)
 
----
+## Instalação
 
-## 🧑‍💻 Tecnologias e Ferramentas
+### 1. Clonar o repositório
 
-- **Linguagem:** Python [![py](https://skillicons.dev/icons?i=py)](https://skillicons.dev)
-- **Framework Back-end:** FastAPI [![fastapi](https://skillicons.dev/icons?i=fastapi)](https://skillicons.dev)
-- **Banco de Dados:** MongoDB [![mongodb](https://skillicons.dev/icons?i=mongodb)](https://skillicons.dev) 
-- **API Externa:** NASA POWER API 
-- **Plataforma de Versionamento:** GitHub [![github](https://skillicons.dev/icons?i=github)](https://skillicons.dev) 
+```bash
+git clone <url-do-repositorio>
+cd irrigation-app-nasa-data
+```
 
----
+### 2. Criar ambiente virtual
 
-## 🛠️ Estrutura Técnica (Resumo)
+```bash
+python -m venv venv
+```
 
-### 📡 API Externa (NASA):
-- Consumo de dados climáticos: temperatura, umidade, precipitação, entre outros.
-- Os dados serão utilizados para gerar recomendações de irrigação.
+### 3. Ativar ambiente virtual
 
-### 🖥️ Back-end (API Própria):
-- Desenvolvimento de uma API REST usando FastAPI.
-- Comunicação com a API da NASA.
-- Processamento e formatação dos dados antes de enviar ao front-end.
-- Possível integração com MongoDB para:
-  - Armazenamento de histórico de dados climáticos.
-  - Cadastro e gerenciamento de usuários (futuramente).
+**Linux/MacOS:**
+```bash
+source venv/bin/activate
+```
 
-### 📱 Front-end:
-- Interface do aplicativo (em desenvolvimento nas próximas fases).
-- Exibição de dados e recomendações para o produtor.
+**Windows:**
+```bash
+venv\Scripts\activate
+```
 
+### 4. Instalar dependências
 
+```bash
+pip install -r requirements.txt
+pip install prisma
+```
+
+### 5. Configurar banco de dados
+
+Crie um banco de dados PostgreSQL:
+
+```sql
+CREATE DATABASE irrigation;
+```
+
+Crie o arquivo `.env` na raiz do projeto:
+
+```
+DATABASE_URL="postgresql://usuario:senha@localhost:5432/irrigation"
+SECRET_KEY="sua-chave-secreta-segura-aqui"
+```
+
+**Importante:** Substitua `usuario` e `senha` pelas credenciais do seu PostgreSQL.
+
+### 6. Executar migrações do banco de dados
+
+```bash
+prisma migrate deploy
+prisma generate
+```
+
+### 7. Iniciar servidor
+
+```bash
+uvicorn app.main:app --reload
+```
+
+O servidor estará disponível em `http://localhost:8000`
+
+## Documentação da API
+
+Acesse a documentação interativa em:
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+
+## Estrutura do Projeto
+
+```
+irrigation-app-nasa-data/
+├── app/
+│   ├── auth/              # Módulo de autenticação
+│   ├── fazendeiro/        # Módulo de gestão de fazendeiros
+│   ├── config.py          # Configurações da aplicação
+│   ├── dependencies.py    # Dependências compartilhadas
+│   └── main.py           # Ponto de entrada da aplicação
+├── prisma/
+│   ├── schema.prisma     # Schema do banco de dados
+│   └── migrations/       # Migrações do banco
+├── .env                  # Variáveis de ambiente (não versionado)
+├── requirements.txt      # Dependências Python
+└── README.md
+```
+
+## Endpoints Principais
+
+### Autenticação
+
+- `POST /auth/register` - Registro de novo usuário
+- `POST /auth/login` - Login e obtenção de token JWT
+- `GET /auth/me` - Dados do usuário autenticado
+
+### Fazendeiro
+
+- `GET /fazendeiro/me` - Perfil do fazendeiro autenticado
+- `PUT /fazendeiro/me/update-harvest-phase` - Atualizar fase da colheita
+- `PUT /fazendeiro/me/change-password` - Alterar senha
+
+### Irrigação
+
+- `POST /fazendeiro/irrigacao/registrar` - Registrar irrigação
+- `GET /fazendeiro/irrigacao/historico` - Histórico de irrigações
+- `POST /fazendeiro/irrigacao/recomendacao` - Obter recomendação baseada em dados climáticos
+
+## Tecnologias Utilizadas
+
+- **FastAPI** - Framework web assíncrono
+- **Prisma** - ORM para Python
+- **PostgreSQL** - Banco de dados relacional
+- **JWT** - Autenticação via tokens
+- **bcrypt** - Hash de senhas
+- **NASA POWER API** - Dados climáticos
+
+## Variáveis de Ambiente
+
+| Variável | Descrição | Exemplo |
+|----------|-----------|---------|
+| DATABASE_URL | URL de conexão com PostgreSQL | postgresql://user:pass@localhost:5432/dbname |
+| SECRET_KEY | Chave secreta para JWT | string-aleatoria-segura |
+
+## Desenvolvimento
+
+### Executar em modo de desenvolvimento
+
+```bash
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Criar nova migração
+
+```bash
+prisma migrate dev --name nome_da_migracao
+```
+
+### Gerar cliente Prisma após alterações no schema
+
+```bash
+prisma generate
+```
+
+## Segurança
+
+- Senhas são armazenadas com hash bcrypt
+- Autenticação via JWT com expiração configurável
+- Tokens são validados em todas as rotas protegidas
+- Nunca versione o arquivo `.env`
+
+## Solução de Problemas
+
+### Erro ao conectar no banco de dados
+
+Verifique se:
+- O PostgreSQL está rodando
+- As credenciais no `.env` estão corretas
+- O banco de dados existe
+
+### Erro ao executar migrações
+
+```bash
+prisma migrate reset
+prisma migrate deploy
+prisma generate
+```
+
+### Erro de importação do Prisma
+
+```bash
+pip uninstall prisma
+pip install prisma
+prisma generate
+```
+
+## Licença
+
+Este projeto é proprietário e confidencial.

@@ -60,3 +60,19 @@ class FazendeiroSearch(BaseModel):
 class FazendeiroChangePassword(BaseModel):
     old_password: str
     new_password: str
+
+class IrrigacaoRequest(BaseModel):
+    latitude: float
+    longitude: float
+
+class IrrigacaoResponse(BaseModel):
+    id: str
+    userId: int
+    irrigatedAt: str
+
+class IrrigacaoClimaResponse(BaseModel):
+    temperatura_media: float
+    precipitacao_total: float
+    umidade_media: float
+    data: str
+    recomendacao: str
