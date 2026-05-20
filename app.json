@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "CLIMORA",
+    "slug": "climora",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/logo.png",
+    "scheme": "climora",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/images/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#003850"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.climora.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "CLIMORA uses your location to fetch accurate climate data for irrigation recommendations."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/logo.png",
+        "backgroundColor": "#003850"
+      },
+      "package": "com.climora.app",
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow CLIMORA to use your location for irrigation recommendations."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
