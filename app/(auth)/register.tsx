@@ -2,12 +2,23 @@ import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, KeyboardAvoidingView, Platform,
-  ScrollView, ActivityIndicator, Alert,
+  ScrollView, ActivityIndicator, Alert, Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
 import { Colors } from '@/constants/Colors';
+
+const SOIL_IMAGES: Record<string, any> = {
+  ARGILOSO: require('@/assets/images/soil_argiloso.png'),
+  ARENOSO: require('@/assets/images/soil_arenoso.png'),
+};
+
+const HARVEST_IMAGES: Record<string, any> = {
+  INICIAL: require('@/assets/images/harvest_inicial.png'),
+  DESENVOLVIMENTO: require('@/assets/images/harvest_desenvolvimento.png'),
+  MATURACAO: require('@/assets/images/harvest_maturacao.png'),
+};
 import { RegisterPayload } from '@/services/api';
 
 type Gender = 'MASCULINO' | 'FEMININO' | 'OUTRO' | 'NAO_INFORMAR';
@@ -171,6 +182,9 @@ export default function RegisterScreen() {
                   </Text>
                   <Text style={styles.selectionDesc}>{s.desc}</Text>
                 </View>
+                {SOIL_IMAGES[s.value] && (
+                  <Image source={SOIL_IMAGES[s.value]} style={styles.selectionImage} resizeMode="cover" />
+                )}
               </TouchableOpacity>
             ))}
           </View>
@@ -194,6 +208,9 @@ export default function RegisterScreen() {
                   </Text>
                   <Text style={styles.selectionDesc}>{h.desc}</Text>
                 </View>
+                {HARVEST_IMAGES[h.value] && (
+                  <Image source={HARVEST_IMAGES[h.value]} style={styles.selectionImage} resizeMode="contain" />
+                )}
               </TouchableOpacity>
             ))}
           </View>
@@ -283,6 +300,7 @@ const styles = StyleSheet.create({
   selectionLabel: { fontSize: 16, fontFamily: 'Quicksand_700Bold', color: Colors.black },
   selectionLabelActive: { color: Colors.primary },
   selectionDesc: { fontSize: 13, fontFamily: 'Quicksand_400Regular', color: Colors.darkGray, marginTop: 2 },
+  selectionImage: { width: 60, height: 60, borderRadius: 8 },
   nextBtn: {
     backgroundColor: Colors.primary,
     borderRadius: 10,

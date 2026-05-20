@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   ScrollView, ActivityIndicator, Alert, Modal,
-  RefreshControl,
+  RefreshControl, Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -151,16 +151,25 @@ export default function IrrigationScreen() {
             </View>
           ) : clima ? (
             <View style={[styles.recCard, { borderLeftColor: recColor }]}>
-              <Text style={[styles.recTitle, { color: recColor }]}>
-                {clima.recomendacao.includes('irrigar') ? '🌡️ Hora de irrigar!' :
-                  clima.recomendacao.includes('Chuva') ? '🌧️ Chuva intensa' :
-                    '💧 Solo úmido'}
-              </Text>
-              <Text style={styles.recDesc}>{clima.recomendacao}</Text>
-              <View style={styles.recStats}>
-                <Text style={styles.recStat}>🌡 {clima.temperatura_media.toFixed(1)}°C</Text>
-                <Text style={styles.recStat}>🌧 {clima.precipitacao_total.toFixed(1)}mm</Text>
-                <Text style={styles.recStat}>💧 {clima.umidade_media.toFixed(0)}%</Text>
+              <View style={styles.recRow}>
+                <View style={styles.recContent}>
+                  <Text style={[styles.recTitle, { color: recColor }]}>
+                    {clima.recomendacao.includes('irrigar') ? '🌡️ Hora de irrigar!' :
+                      clima.recomendacao.includes('Chuva') ? '🌧️ Chuva intensa' :
+                        '💧 Solo úmido'}
+                  </Text>
+                  <Text style={styles.recDesc}>{clima.recomendacao}</Text>
+                  <View style={styles.recStats}>
+                    <Text style={styles.recStat}>🌡 {clima.temperatura_media.toFixed(1)}°C</Text>
+                    <Text style={styles.recStat}>🌧 {clima.precipitacao_total.toFixed(1)}mm</Text>
+                    <Text style={styles.recStat}>💧 {clima.umidade_media.toFixed(0)}%</Text>
+                  </View>
+                </View>
+                <Image
+                  source={require('@/assets/images/character.png')}
+                  style={styles.characterImg}
+                  resizeMode="contain"
+                />
               </View>
             </View>
           ) : (
@@ -291,6 +300,9 @@ const styles = StyleSheet.create({
   recDesc: { fontSize: 14, fontFamily: 'Quicksand_500Medium', color: Colors.darkGray },
   recStats: { flexDirection: 'row', gap: 16, marginTop: 4 },
   recStat: { fontSize: 13, fontFamily: 'Quicksand_600SemiBold', color: Colors.black },
+  recRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  recContent: { flex: 1, gap: 6 },
+  characterImg: { width: 52, height: 65 },
   historySection: { gap: 8 },
   historyTitle: { fontSize: 14, fontFamily: 'Quicksand_700Bold', color: Colors.black },
   historyItem: {
