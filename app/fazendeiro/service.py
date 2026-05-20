@@ -133,46 +133,41 @@ class FazendeiroService:
         return [v for v in valores if v != fill_value]
 
     def get_nasa_power_hourly(self, lat: float, lon: float):
-        ontem = datetime.now() - timedelta(days=3)
-        data_inicio = ontem.strftime("%Y%m%d")
-        data_fim = ontem.strftime("%Y%m%d")
-
         url = "https://power.larc.nasa.gov/api/temporal/hourly/point"
-        params = {
-            "parameters": "T2M,PRECTOTCORR,RH2M",
-            "community": "AG",
-            "longitude": lon,
-            "latitude": lat,
-            "start": data_inicio,
-            "end": data_fim,
-            "format": "JSON"
-        }
 
-        response = requests.get(url, params=params)
-        response.raise_for_status()
-        data = response.json()
+        # NASA POWER tem delay de ~4-5 dias; tenta de 5 até 15 dias atrás
+        for days_back in range(5, 16):
+            data_inicio = (datetime.now() - timedelta(days=days_back)).strftime("%Y%m%d")
+            params = {
+                "parameters": "T2M,PRECTOTCORR,RH2M",
+                "community": "AG",
+                "longitude": lon,
+                "latitude": lat,
+                "start": data_inicio,
+                "end": data_inicio,
+                "format": "JSON"
+            }
+            response = requests.get(url, params=params, timeout=20)
+            response.raise_for_status()
+            data = response.json()
 
-        temp_horas = data["properties"]["parameter"]["T2M"]
-        prectot_horas = data["properties"]["parameter"]["PRECTOTCORR"]
-        rh2m_horas = data["properties"]["parameter"]["RH2M"]
+            temp_horas = data["properties"]["parameter"]["T2M"]
+            prectot_horas = data["properties"]["parameter"]["PRECTOTCORR"]
+            rh2m_horas = data["properties"]["parameter"]["RH2M"]
 
-        temperaturas = self.filtrar_valores_validos(list(temp_horas.values()))
-        precipitacoes = self.filtrar_valores_validos(list(prectot_horas.values()))
-        umidades = self.filtrar_valores_validos(list(rh2m_horas.values()))
+            temperaturas = self.filtrar_valores_validos(list(temp_horas.values()))
+            precipitacoes = self.filtrar_valores_validos(list(prectot_horas.values()))
+            umidades = self.filtrar_valores_validos(list(rh2m_horas.values()))
 
-        if not temperaturas or not precipitacoes or not umidades:
-            raise Exception("Não há dados válidos disponíveis para o local e data solicitados.")
+            if temperaturas and precipitacoes and umidades:
+                return {
+                    "temperatura_media": round(sum(temperaturas) / len(temperaturas), 2),
+                    "precipitacao_total": round(sum(precipitacoes), 2),
+                    "umidade_media": round(sum(umidades) / len(umidades), 2),
+                    "data": data_inicio
+                }
 
-        temp_media = sum(temperaturas) / len(temperaturas)
-        prec_total = sum(precipitacoes)
-        umid_media = sum(umidades) / len(umidades)
-
-        return {
-            "temperatura_media": round(temp_media, 2),
-            "precipitacao_total": round(prec_total, 2),
-            "umidade_media": round(umid_media, 2),
-            "data": data_inicio
-        }
+        raise Exception("Não há dados válidos disponíveis para o local solicitado.")
 
     def gerar_recomendacao(self, dados):
         if dados["precipitacao_total"] < 2 and dados["umidade_media"] < 60:
