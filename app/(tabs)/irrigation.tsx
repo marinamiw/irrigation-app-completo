@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import * as Location from 'expo-location';
+import { getCurrentCoords } from '@/utils/location';
 import { Colors } from '@/constants/Colors';
 import { fazendeiroApi, IrrigacaoClimaResponse, IrrigacaoRecord } from '@/services/api';
 import ScreenBackground from '@/components/ScreenBackground';
@@ -21,13 +21,6 @@ export default function IrrigationScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
 
-  const fetchLocation = async () => {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') return null;
-    const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-    return { lat: loc.coords.latitude, lon: loc.coords.longitude };
-  };
-
   const loadData = useCallback(async () => {
     try {
       const hist = await fazendeiroApi.historicoIrrigacao();
@@ -36,12 +29,10 @@ export default function IrrigationScreen() {
 
     setLoadingClima(true);
     try {
-      const loc = location ?? await fetchLocation();
-      if (loc) {
-        if (!location) setLocation(loc);
-        const data = await fazendeiroApi.recomendacao(loc.lat, loc.lon);
-        setClima(data);
-      }
+      const loc = location ?? await getCurrentCoords().then(c => ({ lat: c.latitude, lon: c.longitude }));
+      if (!location) setLocation(loc);
+      const data = await fazendeiroApi.recomendacao(loc!.lat, loc!.lon);
+      setClima(data);
     } catch {
     } finally {
       setLoadingClima(false);

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  ScrollView, Alert, Modal, TextInput, ActivityIndicator,
+  ScrollView, Alert, Modal, TextInput, ActivityIndicator, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -44,14 +44,19 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleLogout = async () => {
+    const doLogout = async () => {
+      await logout();
+      router.replace('/(auth)/login' as any);
+    };
+
+    if (Platform.OS === 'web') {
+      if (window.confirm('Deseja realmente sair?')) await doLogout();
+      return;
+    }
+
     Alert.alert('Sair', 'Deseja realmente sair?', [
       { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Sair', style: 'destructive', onPress: async () => {
-          await logout();
-          router.replace('/(auth)/login');
-        }
-      },
+      { text: 'Sair', style: 'destructive', onPress: doLogout },
     ]);
   };
 

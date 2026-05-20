@@ -6,7 +6,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import * as Location from 'expo-location';
+import { getCurrentCoords } from '@/utils/location';
 import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/context/AuthContext';
 import { fazendeiroApi, IrrigacaoClimaResponse, IrrigacaoRecord } from '@/services/api';
@@ -29,12 +29,9 @@ export default function HomeScreen() {
 
     try {
       setLoadingClima(true);
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === 'granted') {
-        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-        const data = await fazendeiroApi.recomendacao(loc.coords.latitude, loc.coords.longitude);
-        setClima(data);
-      }
+      const coords = await getCurrentCoords();
+      const data = await fazendeiroApi.recomendacao(coords.latitude, coords.longitude);
+      setClima(data);
     } catch {
     } finally {
       setLoadingClima(false);

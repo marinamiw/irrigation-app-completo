@@ -9,15 +9,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
 import { Colors } from '@/constants/Colors';
 
+// Atenção: os arquivos foram baixados do Figma com nomes invertidos.
+// Os discos de solo estão salvos como harvest_*.png e as cenas de lavoura como soil_*.png.
 const SOIL_IMAGES: Record<string, any> = {
-  ARGILOSO: require('@/assets/images/soil_argiloso.png'),
-  ARENOSO: require('@/assets/images/soil_arenoso.png'),
+  MEDIO: require('@/assets/images/harvest_maturacao.png'),
+  ARGILOSO: require('@/assets/images/harvest_inicial.png'),
+  ARENOSO: require('@/assets/images/harvest_desenvolvimento.png'),
 };
 
 const HARVEST_IMAGES: Record<string, any> = {
-  INICIAL: require('@/assets/images/harvest_inicial.png'),
-  DESENVOLVIMENTO: require('@/assets/images/harvest_desenvolvimento.png'),
-  MATURACAO: require('@/assets/images/harvest_maturacao.png'),
+  INICIAL: require('@/assets/images/soil_argiloso.png'),
+  DESENVOLVIMENTO: require('@/assets/images/soil_arenoso.png'),
+  MATURACAO: require('@/assets/images/soil_arenoso.png'),
 };
 import { RegisterPayload } from '@/services/api';
 
@@ -91,7 +94,7 @@ export default function RegisterScreen() {
         harvestPhase,
       };
       await register(payload);
-      router.replace('/(tabs)/');
+      router.replace('/(tabs)' as any);
     } catch (e: any) {
       Alert.alert('Erro', e.message ?? 'Falha no cadastro.');
     } finally {

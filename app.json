@@ -27,6 +27,10 @@
       "package": "com.climora.app",
       "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
     },
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/images/logo.png"
+    },
     "plugins": [
       "expo-router",
       [
