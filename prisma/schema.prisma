@@ -70,11 +70,11 @@ model User {
 // Modelo para o registro de Irrigação
 model Irrigation {
   id              String    @id @default(cuid())
-  irrigatedAt     DateTime  @default(now()) // Data e hora em que a irrigação foi registrada
-  
-  // Relacionamento: Este registro de irrigação pertence a um único usuário.
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId          Int       // Corrigido para Int
+  irrigatedAt     DateTime  @default(now())
+  quantidadeLitros Float?
 
-  @@map("irrigations") // Mapeia este modelo para a tabela "irrigations" no banco de dados
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          Int
+
+  @@map("irrigations")
 }

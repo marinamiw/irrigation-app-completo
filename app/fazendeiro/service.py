@@ -104,16 +104,13 @@ class FazendeiroService:
         user = await self.repo.update_soil_harvest(user_id, soil_type, harvest_phase)
         return FazendeiroResponse.model_validate(user) if user else None
 
-    async def registrar_irrigacao(self, user_id: int) -> IrrigacaoResponse:
-        """
-        Registra uma irrigação para o usuário.
-        """
-        irrigacao = await self.repo.registrar_irrigacao(user_id)
-        # Prisma retorna objeto, não dict
+    async def registrar_irrigacao(self, user_id: int, quantidade: float | None = None) -> IrrigacaoResponse:
+        irrigacao = await self.repo.registrar_irrigacao(user_id, quantidade)
         return IrrigacaoResponse(
             id=irrigacao.id,
             userId=irrigacao.userId,
-            irrigatedAt=str(irrigacao.irrigatedAt)
+            irrigatedAt=str(irrigacao.irrigatedAt),
+            quantidadeLitros=irrigacao.quantidadeLitros,
         )
 
     async def historico_irrigacao(self, user_id: int) -> List[IrrigacaoResponse]:
@@ -129,58 +126,88 @@ class FazendeiroService:
             ) for i in irrigacoes
         ]
 
-    def filtrar_valores_validos(self, valores, fill_value=-999):
-        return [v for v in valores if v != fill_value]
+    # Cache em memória: chave=(lat2, lon2) → (datetime, resultado)
+    _nasa_cache: dict = {}
+
+    def _filtrar(self, valores, fill=-999):
+        return [v for v in valores if v != fill]
 
     def get_nasa_power_hourly(self, lat: float, lon: float):
-        url = "https://power.larc.nasa.gov/api/temporal/hourly/point"
+        lat_r = round(lat, 2)
+        lon_r = round(lon, 2)
+        cache_key = (lat_r, lon_r)
 
-        # NASA POWER tem delay de ~4-5 dias; tenta de 5 até 15 dias atrás
-        for days_back in range(5, 16):
-            data_inicio = (datetime.now() - timedelta(days=days_back)).strftime("%Y%m%d")
-            params = {
-                "parameters": "T2M,PRECTOTCORR,RH2M",
-                "community": "AG",
-                "longitude": lon,
-                "latitude": lat,
-                "start": data_inicio,
-                "end": data_inicio,
-                "format": "JSON"
-            }
-            response = requests.get(url, params=params, timeout=20)
-            response.raise_for_status()
-            data = response.json()
+        cached = self.__class__._nasa_cache.get(cache_key)
+        if cached:
+            cached_at, result = cached
+            if datetime.now() - cached_at < timedelta(hours=6):
+                return result
 
-            temp_horas = data["properties"]["parameter"]["T2M"]
-            prectot_horas = data["properties"]["parameter"]["PRECTOTCORR"]
-            rh2m_horas = data["properties"]["parameter"]["RH2M"]
+        # Uma única chamada cobrindo os últimos 15 dias
+        data_fim = (datetime.now() - timedelta(days=1)).strftime("%Y%m%d")
+        data_inicio = (datetime.now() - timedelta(days=15)).strftime("%Y%m%d")
 
-            temperaturas = self.filtrar_valores_validos(list(temp_horas.values()))
-            precipitacoes = self.filtrar_valores_validos(list(prectot_horas.values()))
-            umidades = self.filtrar_valores_validos(list(rh2m_horas.values()))
+        url = "https://power.larc.nasa.gov/api/temporal/daily/point"
+        params = {
+            "parameters": "T2M,PRECTOTCORR,RH2M",
+            "community": "AG",
+            "longitude": lon_r,
+            "latitude": lat_r,
+            "start": data_inicio,
+            "end": data_fim,
+            "format": "JSON",
+        }
+        response = requests.get(url, params=params, timeout=30)
+        response.raise_for_status()
+        data = response.json()
 
-            if temperaturas and precipitacoes and umidades:
-                return {
-                    "temperatura_media": round(sum(temperaturas) / len(temperaturas), 2),
-                    "precipitacao_total": round(sum(precipitacoes), 2),
-                    "umidade_media": round(sum(umidades) / len(umidades), 2),
-                    "data": data_inicio
+        temps = data["properties"]["parameter"]["T2M"]
+        precips = data["properties"]["parameter"]["PRECTOTCORR"]
+        umids = data["properties"]["parameter"]["RH2M"]
+
+        # Percorre do dia mais recente para o mais antigo
+        for date_key in sorted(temps.keys(), reverse=True):
+            t = temps.get(date_key, -999)
+            p = precips.get(date_key, -999)
+            u = umids.get(date_key, -999)
+            if t != -999 and p != -999 and u != -999:
+                result = {
+                    "temperatura_media": round(t, 2),
+                    "precipitacao_total": round(p, 2),
+                    "umidade_media": round(u, 2),
+                    "data": date_key,
                 }
+                self.__class__._nasa_cache[cache_key] = (datetime.now(), result)
+                return result
 
         raise Exception("Não há dados válidos disponíveis para o local solicitado.")
 
-    def gerar_recomendacao(self, dados):
-        if dados["precipitacao_total"] < 2 and dados["umidade_media"] < 60:
-            return "Recomenda-se irrigar hoje."
-        elif dados["precipitacao_total"] > 10:
+    def gerar_recomendacao(self, dados, soil_type: str = "MEDIO", harvest_phase: str = "DESENVOLVIMENTO"):
+        precip = dados["precipitacao_total"]
+        umid = dados["umidade_media"]
+
+        thresholds = {
+            "ARENOSO":  {"precip_min": 3,  "umid_min": 50},
+            "MEDIO":    {"precip_min": 2,  "umid_min": 60},
+            "ARGILOSO": {"precip_min": 1,  "umid_min": 70},
+        }
+        t = thresholds.get(soil_type, thresholds["MEDIO"])
+
+        if precip > 10:
             return "Chuva intensa registrada. Irrigação não necessária."
+        elif precip < t["precip_min"] and umid < t["umid_min"]:
+            if harvest_phase == "MATURACAO":
+                return "Recomenda-se irrigar com moderação. Solo seco na fase de maturação pode prejudicar a colheita."
+            elif harvest_phase == "INICIAL":
+                return "Recomenda-se irrigar hoje. Raízes em formação precisam de umidade constante."
+            else:
+                return "Recomenda-se irrigar hoje."
         else:
+            if harvest_phase == "MATURACAO":
+                return "Solo úmido. Evite excesso de água na fase de maturação."
             return "Solo ainda úmido. Acompanhar nos próximos dias."
 
-    def consulta_clima_e_recomendacao(self, lat: float, lon: float) -> IrrigacaoClimaResponse:
-        """
-        Consulta dados climáticos e gera recomendação de irrigação.
-        """
+    def consulta_clima_e_recomendacao(self, lat: float, lon: float, soil_type: str = "MEDIO", harvest_phase: str = "DESENVOLVIMENTO") -> IrrigacaoClimaResponse:
         dados = self.get_nasa_power_hourly(lat, lon)
-        recomendacao = self.gerar_recomendacao(dados)
+        recomendacao = self.gerar_recomendacao(dados, soil_type, harvest_phase)
         return IrrigacaoClimaResponse(**dados, recomendacao=recomendacao)
