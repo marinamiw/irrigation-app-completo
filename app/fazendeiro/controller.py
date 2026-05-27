@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import APIRouter, Depends, HTTPException
 from prisma import Prisma
 from app.dependencies import get_db
@@ -6,7 +7,8 @@ from .service import FazendeiroService
 from .schemas import (
     FazendeiroUpdate, FazendeiroResponse,
     FazendeiroSearch, FazendeiroChangePassword, FazendeiroUpdateSoilHarvest,
-    IrrigacaoRequest, IrrigacaoResponse, IrrigacaoClimaResponse, Gender
+    IrrigacaoRequest, IrrigacaoRegistrarRequest, IrrigacaoResponse, IrrigacaoClimaResponse, Gender,
+    UpdateHarvestPhaseBody
 )
 from typing import List
 
@@ -31,16 +33,11 @@ async def get_me(
 
 @router.put("/me/update-harvest-phase", response_model=FazendeiroResponse)
 async def update_harvest_phase(
-    harvestPhase: str,
+    payload: UpdateHarvestPhaseBody,
     db: Prisma = Depends(get_db),
     current_user: FazendeiroResponse = Depends(get_current_user)
 ):
-    """
-    Atualiza apenas o estágio de desenvolvimento da própria fazenda.
-    Valores possíveis: INICIAL, DESENVOLVIMENTO, MATURACAO.
-    Requer autenticação.
-    """
-    harvestPhase = harvestPhase.upper()
+    harvestPhase = payload.harvestPhase.upper()
     if harvestPhase not in ["INICIAL", "DESENVOLVIMENTO", "MATURACAO"]:
         raise HTTPException(status_code=400, detail="Fase de desenvolvimento inválida.")
     service = FazendeiroService(db)
@@ -67,16 +64,12 @@ async def change_password(
 
 @router.post("/irrigacao/registrar", response_model=IrrigacaoResponse)
 async def registrar_irrigacao(
+    req: IrrigacaoRegistrarRequest,
     db: Prisma = Depends(get_db),
     current_user: FazendeiroResponse = Depends(get_current_user)
 ):
-    """
-    Registra uma irrigação para o usuário autenticado.
-    O usuário não precisa informar seu ID, é obtido automaticamente do token.
-    Requer autenticação.
-    """
     service = FazendeiroService(db)
-    return await service.registrar_irrigacao(current_user.id)
+    return await service.registrar_irrigacao(current_user.id, req.quantidadeLitros)
 
 @router.get("/irrigacao/historico", response_model=List[IrrigacaoResponse])
 async def historico_irrigacao(
@@ -102,7 +95,13 @@ async def consulta_recomendacao_irrigacao(
     """
     service = FazendeiroService(db)
     try:
-        return service.consulta_clima_e_recomendacao(req.latitude, req.longitude)
+        result = await asyncio.to_thread(
+            service.consulta_clima_e_recomendacao,
+            req.latitude, req.longitude,
+            current_user.soilType or "MEDIO",
+            current_user.harvestPhase or "DESENVOLVIMENTO",
+        )
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao consultar dados climáticos: {str(e)}")
 

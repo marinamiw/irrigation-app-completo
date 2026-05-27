@@ -57,6 +57,9 @@ class FazendeiroSearch(BaseModel):
     harvestPhase: Optional[HarvestPhase] = None
     email: Optional[EmailStr] = None
 
+class UpdateHarvestPhaseBody(BaseModel):
+    harvestPhase: str
+
 class FazendeiroChangePassword(BaseModel):
     old_password: str
     new_password: str
@@ -65,10 +68,14 @@ class IrrigacaoRequest(BaseModel):
     latitude: float
     longitude: float
 
+class IrrigacaoRegistrarRequest(BaseModel):
+    quantidadeLitros: Optional[float] = None
+
 class IrrigacaoResponse(BaseModel):
     id: str
     userId: int
     irrigatedAt: str
+    quantidadeLitros: Optional[float] = None
 
 class IrrigacaoClimaResponse(BaseModel):
     temperatura_media: float

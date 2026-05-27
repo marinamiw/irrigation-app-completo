@@ -42,8 +42,11 @@ class FazendeiroRepository:
             data={"soilType": soil_type, "harvestPhase": harvest_phase}
         )
 
-    async def registrar_irrigacao(self, user_id: int) -> Irrigation:
-        return await self.db.irrigation.create(data={"userId": user_id})
+    async def registrar_irrigacao(self, user_id: int, quantidade: float | None = None) -> Irrigation:
+        data: dict = {"userId": user_id}
+        if quantidade is not None:
+            data["quantidadeLitros"] = quantidade
+        return await self.db.irrigation.create(data=data)
 
     async def historico_irrigacao(self, user_id: int) -> List[Irrigation]:
         return await self.db.irrigation.find_many(where={"userId": user_id}, order={"irrigatedAt": "desc"})
