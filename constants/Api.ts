@@ -22,7 +22,7 @@ const getApiUrl = (): string => {
     return 'http://localhost:8000';
   }
 
-  return 'https://your-production-api.com';
+  return 'https://climora.up.railway.app';
 };
 
 export const API_URL = getApiUrl();
