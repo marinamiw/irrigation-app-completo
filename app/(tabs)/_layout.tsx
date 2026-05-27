@@ -35,7 +35,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="irrigation"
         options={{
-          title: 'water',
+          title: 'Irrigação',
           tabBarIcon: ({ focused, color }) => (
             <Ionicons name={focused ? 'water' : 'water-outline'} size={28} color={color} />
           ),

@@ -89,6 +89,9 @@ export default function HomeScreen() {
                   <Ionicons name="bulb-outline" size={16} color={getRecomendacaoColor(clima.recomendacao)} />
                   <Text style={[styles.recText, { color: getRecomendacaoColor(clima.recomendacao) }]}>{clima.recomendacao}</Text>
                 </View>
+                <Text style={styles.climaDateText}>
+                  Dados de {clima.data ? `${clima.data.slice(6,8)}/${clima.data.slice(4,6)}/${clima.data.slice(0,4)}` : '—'} · via satélite NASA
+                </Text>
               </View>
             ) : (
               <Text style={styles.noClima}>Localização necessária para dados climáticos</Text>
@@ -160,6 +163,7 @@ const styles = StyleSheet.create({
   },
   climaLoading: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8 },
   climaLoadingText: { fontSize: 13, fontFamily: 'Quicksand_500Medium', color: Colors.darkGray },
+  climaDateText: { fontSize: 11, fontFamily: 'Quicksand_500Medium', color: Colors.darkGray, marginTop: 6, textAlign: 'right' },
   climaRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',

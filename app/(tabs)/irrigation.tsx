@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   ScrollView, ActivityIndicator, Alert, Modal,
-  RefreshControl, Image,
+  RefreshControl, Image, TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -18,6 +18,7 @@ export default function IrrigationScreen() {
   const [loadingClima, setLoadingClima] = useState(false);
   const [registering, setRegistering] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [quantidadeInput, setQuantidadeInput] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
 
@@ -50,10 +51,12 @@ export default function IrrigationScreen() {
   const handleRegisterIrrigation = async () => {
     setRegistering(true);
     try {
-      await fazendeiroApi.registrarIrrigacao();
+      const quantidade = quantidadeInput ? parseFloat(quantidadeInput.replace(',', '.')) : undefined;
+      await fazendeiroApi.registrarIrrigacao(quantidade);
       const hist = await fazendeiroApi.historicoIrrigacao();
       setHistorico(hist);
       setShowModal(false);
+      setQuantidadeInput('');
       Alert.alert('Sucesso', 'Irrigação registrada com sucesso!');
     } catch (e: any) {
       Alert.alert('Erro', e.message ?? 'Falha ao registrar irrigação.');
@@ -155,6 +158,11 @@ export default function IrrigationScreen() {
                     <Text style={styles.recStat}>🌧 {clima.precipitacao_total.toFixed(1)}mm</Text>
                     <Text style={styles.recStat}>💧 {clima.umidade_media.toFixed(0)}%</Text>
                   </View>
+                  {clima.data && (
+                    <Text style={styles.nasaDate}>
+                      Dados de {clima.data.slice(6,8)}/{clima.data.slice(4,6)}/{clima.data.slice(0,4)} · NASA
+                    </Text>
+                  )}
                 </View>
                 <Image
                   source={require('@/assets/images/character.png')}
@@ -176,9 +184,14 @@ export default function IrrigationScreen() {
               {historico.slice(0, 5).map(item => (
                 <View key={item.id} style={styles.historyItem}>
                   <Ionicons name="checkmark-circle" size={18} color={Colors.success} />
-                  <Text style={styles.historyDate}>
-                    {new Date(item.irrigatedAt).toLocaleString('pt-BR')}
-                  </Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.historyDate}>
+                      {new Date(item.irrigatedAt).toLocaleString('pt-BR')}
+                    </Text>
+                    {item.quantidadeLitros != null && (
+                      <Text style={styles.historyQtd}>{item.quantidadeLitros} L irrigados</Text>
+                    )}
+                  </View>
                 </View>
               ))}
             </View>
@@ -206,6 +219,15 @@ export default function IrrigationScreen() {
                 </View>
               </View>
             )}
+            <Text style={styles.modalFieldLabel}>Quantidade irrigada (litros)</Text>
+            <TextInput
+              style={styles.modalInput}
+              value={quantidadeInput}
+              onChangeText={setQuantidadeInput}
+              placeholder="Ex: 500 (opcional)"
+              placeholderTextColor="#aaa"
+              keyboardType="numeric"
+            />
             <Text style={styles.modalDesc}>Confirmar registro de irrigação para sua fazenda?</Text>
             <TouchableOpacity
               style={styles.confirmBtn}
@@ -291,6 +313,7 @@ const styles = StyleSheet.create({
   recDesc: { fontSize: 14, fontFamily: 'Quicksand_500Medium', color: Colors.darkGray },
   recStats: { flexDirection: 'row', gap: 16, marginTop: 4 },
   recStat: { fontSize: 13, fontFamily: 'Quicksand_600SemiBold', color: Colors.black },
+  nasaDate: { fontSize: 11, fontFamily: 'Quicksand_500Medium', color: Colors.darkGray, marginTop: 6 },
   recRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   recContent: { flex: 1, gap: 6 },
   characterImg: { width: 52, height: 65 },
@@ -305,6 +328,13 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.lightGray,
   },
   historyDate: { fontSize: 13, fontFamily: 'Quicksand_500Medium', color: Colors.darkGray },
+  historyQtd: { fontSize: 12, fontFamily: 'Quicksand_600SemiBold', color: Colors.primary, marginTop: 1 },
+  modalFieldLabel: { fontSize: 14, fontFamily: 'Quicksand_600SemiBold', color: Colors.black },
+  modalInput: {
+    borderWidth: 1, borderColor: '#ddd', borderRadius: 10,
+    paddingHorizontal: 14, height: 48, fontSize: 14,
+    fontFamily: 'Quicksand_500Medium', color: Colors.black, backgroundColor: '#f8f8f8',
+  },
   bottomPad: { height: 90 },
   modalOverlay: {
     flex: 1,

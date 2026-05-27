@@ -25,7 +25,12 @@
         "backgroundColor": "#003850"
       },
       "package": "com.climora.app",
-      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -42,6 +47,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "42ed45a7-a1cb-4a88-88a3-629e47ad9dd6"
+      }
+    },
+    "owner": "marinamiw"
   }
 }

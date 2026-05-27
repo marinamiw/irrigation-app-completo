@@ -31,7 +31,7 @@ const GENDER_LABELS: Record<string, string> = {
 };
 
 export default function ProfileScreen() {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const router = useRouter();
 
   const [showHarvestModal, setShowHarvestModal] = useState(false);
@@ -65,6 +65,7 @@ export default function ProfileScreen() {
     setLoading(true);
     try {
       await fazendeiroApi.updateHarvestPhase({ harvestPhase: selectedPhase });
+      await refreshUser();
       Alert.alert('Sucesso', 'Fase da colheita atualizada!');
       setShowHarvestModal(false);
     } catch (e: any) {

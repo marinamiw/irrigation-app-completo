@@ -34,7 +34,10 @@ async function request<T>(
     if (token) headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_URL}${path}`, { ...options, headers });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+  const res = await fetch(`${API_URL}${path}`, { ...options, headers, signal: controller.signal })
+    .finally(() => clearTimeout(timeoutId));
 
   if (!res.ok) {
     const error = await res.json().catch(() => ({ detail: 'Erro desconhecido' }));
@@ -98,6 +101,7 @@ export interface IrrigacaoRecord {
   id: string;
   userId: number;
   irrigatedAt: string;
+  quantidadeLitros?: number | null;
 }
 
 export interface UpdateHarvestPhasePayload {
@@ -118,8 +122,11 @@ export const fazendeiroApi = {
   changePassword: (payload: ChangePasswordPayload) =>
     request('/fazendeiro/me/change-password', { method: 'PUT', body: JSON.stringify(payload) }),
 
-  registrarIrrigacao: () =>
-    request<IrrigacaoRecord>('/fazendeiro/irrigacao/registrar', { method: 'POST' }),
+  registrarIrrigacao: (quantidadeLitros?: number) =>
+    request<IrrigacaoRecord>('/fazendeiro/irrigacao/registrar', {
+      method: 'POST',
+      body: JSON.stringify({ quantidadeLitros: quantidadeLitros ?? null }),
+    }),
 
   historicoIrrigacao: () =>
     request<IrrigacaoRecord[]>('/fazendeiro/irrigacao/historico'),
