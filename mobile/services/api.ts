@@ -2,7 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import { API_URL } from '@/constants/Api';
 
-const TOKEN_KEY = 'climora_token';
+const TOKEN_KEY = 'climonasa_token';
 
 export async function getToken(): Promise<string | null> {
   if (Platform.OS === 'web') return localStorage.getItem(TOKEN_KEY);

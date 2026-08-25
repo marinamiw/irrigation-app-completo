@@ -1,4 +1,4 @@
-# Plano de Melhorias — CLIMORA
+# Plano de Melhorias — CLIMONASA
 
 ## Bugs corrigidos nesta sessão
 

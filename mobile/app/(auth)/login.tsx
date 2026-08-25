@@ -45,7 +45,7 @@ export default function LoginScreen() {
             style={styles.logoImage}
             resizeMode="contain"
           />
-          <Text style={styles.appName}>CLIMORA</Text>
+          <Text style={styles.appName}>CLIMONASA</Text>
         </View>
 
         <View style={styles.form}>

@@ -1,10 +1,10 @@
-# CLIMORA — Apresentação de Iniciação Científica
+# CLIMONASA — Apresentação de Iniciação Científica
 
 ---
 
 ## PITCH CURTO (30–60 segundos)
 
-> **"CLIMORA é um aplicativo móvel que usa dados reais de satélite da NASA para recomendar ao agricultor se ele deve ou não irrigar sua plantação hoje — levando em conta o tipo de solo, a fase da colheita e as condições climáticas reais da sua localização."**
+> **"CLIMONASA é um aplicativo móvel que usa dados reais de satélite da NASA para recomendar ao agricultor se ele deve ou não irrigar sua plantação hoje — levando em conta o tipo de solo, a fase da colheita e as condições climáticas reais da sua localização."**
 
 O app capta a localização do usuário, consulta a base de dados climáticos da NASA (temperatura, precipitação e umidade dos últimos dias) e gera uma recomendação personalizada. O agricultor também registra quanto irrigou, formando um histórico que pode orientar decisões futuras.
 
@@ -23,9 +23,9 @@ O acesso a sistemas de monitoramento climático profissional é caro e complexo 
 
 ---
 
-### A Solução: CLIMORA
+### A Solução: CLIMONASA
 
-CLIMORA é um aplicativo gratuito para Android que democratiza o acesso a dados climáticos de qualidade e traduz esses dados em recomendações simples e acionáveis para o agricultor.
+CLIMONASA é um aplicativo gratuito para Android que democratiza o acesso a dados climáticos de qualidade e traduz esses dados em recomendações simples e acionáveis para o agricultor.
 
 ---
 
@@ -146,5 +146,5 @@ O agricultor registra cada irrigação com a quantidade em litros. O histórico 
 
 ---
 
-*Projeto de Iniciação Científica — CLIMORA*
+*Projeto de Iniciação Científica — CLIMONASA*
 *Recomendação de Irrigação com Dados Climáticos de Satélite*

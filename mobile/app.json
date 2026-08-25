@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "CLIMORA",
-    "slug": "climora",
+    "name": "CLIMONASA",
+    "slug": "climonasa",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
-    "scheme": "climora",
+    "scheme": "climonasa",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/images/logo.png",
@@ -14,9 +14,9 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.climora.app",
+      "bundleIdentifier": "com.climonasa.app",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "CLIMORA uses your location to fetch accurate climate data for irrigation recommendations."
+        "NSLocationWhenInUseUsageDescription": "CLIMONASA uses your location to fetch accurate climate data for irrigation recommendations."
       }
     },
     "android": {
@@ -24,7 +24,7 @@
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#003850"
       },
-      "package": "com.climora.app",
+      "package": "com.climonasa.app",
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
@@ -41,7 +41,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Allow CLIMORA to use your location for irrigation recommendations."
+          "locationWhenInUsePermission": "Allow CLIMONASA to use your location for irrigation recommendations."
         }
       ]
     ],

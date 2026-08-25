@@ -1,6 +1,6 @@
-# Climora — Monorepo (Mobile + Backend)
+# Climonasa — Monorepo (Mobile + Backend)
 
-Repositorio unificado que reune o aplicativo mobile e a API do projeto Climora
+Repositorio unificado que reune o aplicativo mobile e a API do projeto Climonasa
 (irrigacao inteligente com dados da NASA POWER).
 
 ## Estrutura
