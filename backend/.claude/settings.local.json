@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Marina Menezes\\\\Documents\\\\GitHub\\\\irrigation-app-nasa-data\" -Force)",
+      "Bash(Select-Object Name, FullName)",
+      "PowerShell(code \"c:\\\\Users\\\\Marina Menezes\\\\Documents\\\\GitHub\\\\irrigation-app-mobile\" --add 2>&1)",
+      "Bash(npx expo *)",
+      "Bash(jobs -l)",
+      "Bash(sleep 12 && cat /proc/2243/fd/1 2>/dev/null || jobs -l)",
+      "Read(//proc/2243/fd/**)",
+      "Bash(curl -s http://localhost:8081 -o /dev/null -w \"%{http_code}\")"
+    ]
+  }
+}
